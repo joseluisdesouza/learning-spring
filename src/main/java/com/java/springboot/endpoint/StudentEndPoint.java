@@ -1,8 +1,10 @@
 package com.java.springboot.endpoint;
 
 import com.java.springboot.domain.Student;
-import com.java.springboot.error.CustomErrorType;
+import com.java.springboot.requests.StudentRequest;
+import com.java.springboot.service.StudentService;
 import com.java.springboot.util.DateUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,41 +12,55 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@RestController
-@RequestMapping("students")
+/**
+ * Logica de negocio não vão nas controllers é uma má pratica, coloque sempre na service
+ *
+ * @RequestParam : é utilizado para pegar uma parâmetro de query da url
+ * @PathVariable : Já a anotação @PathVariable serve para pegar um trecho da url que geralmente é dinâmico
+ * Por padrão as duas anotações são required default = true, ou seja, é obrigatorio, para resolver isso caso não queira que seja obrigatorio
+ * coloque assim na passagem de parametro required=false
+ */
+
 @Log4j2
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("students")
 public class StudentEndPoint {
     //localhost:8080/students
     @Autowired
     private DateUtil dateUtil;
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> save(@RequestBody Student student) {
-        Student.studentList.add(student);
-        return new ResponseEntity<>(student, HttpStatus.OK);
+    private final StudentService studentService;
+
+    @PostMapping
+    public Student save(@RequestBody StudentRequest studentRequest) {
+        return studentService.save(studentRequest);
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<?> listAll() {
+    @GetMapping
+    public ResponseEntity<List<Student>> findAll() {
         log.info(dateUtil.formatLocalDateTimeToDatabaseStyle(LocalDateTime.now()));
-        return new ResponseEntity<>(Student.studentList, HttpStatus.OK);
+        log.info("here");
+        return new ResponseEntity<>(studentService.findAll(), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/{id}")
-    public ResponseEntity<?> getStudentById(@PathVariable("id") int id) {
-        Student student = new Student();
-        student.setId(id);
-        int index = Student.studentList.indexOf(student);
-        if (index == -1)
-            return new ResponseEntity<>(new CustomErrorType("Student not found"), HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(Student.studentList.get(index), HttpStatus.OK);
+    @GetMapping(path = "/{id}")
+    public Student findById(@PathVariable Long id) {
+        return studentService.findByIdOrThrowNotFoundException(id);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE)
-    public ResponseEntity<?> delete(@RequestBody Student student) {
-        Student.studentList.remove(student);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        studentService.delete(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> replace(@RequestBody Student student) {
+        studentService.replace(student);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
 
@@ -60,4 +76,9 @@ public class StudentEndPoint {
  * @RequestMapping é o caminho para eu chegar nesse endpoint
  * <p>
  * index.of para retornar o valor do indice
+ * <p>
+ * OBS: irei manter esse padrão antigo de definir os paths ex: @RequestMapping(method = RequestMethod.DELETE) pois podemos  usar somente, @DeleteMapping
+ * iria manter mas esse padrão @RequestMapping estava me imcomodando
+ * @ResponseEntity representa toda a resposta HTTP: código de status, cabeçalhos e corpo .
+ * Como resultado, podemos usá-lo para configurar totalmente a resposta HTTP.
  */
