@@ -49,6 +49,10 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
+    public List<Student> findByNameFilter(String name) {
+        return studentRepository.findByName(name);
+    }
+
     public void delete(Long id) {
         Student.studentList.remove(id);
         studentRepository.deleteById(id);

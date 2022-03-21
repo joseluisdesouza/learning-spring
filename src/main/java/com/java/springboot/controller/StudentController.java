@@ -1,4 +1,4 @@
-package com.java.springboot.endpoint;
+package com.java.springboot.controller;
 
 import com.java.springboot.domain.Student;
 import com.java.springboot.requests.StudentRequest;
@@ -21,13 +21,15 @@ import java.util.List;
  * @PathVariable : Já a anotação @PathVariable serve para pegar um trecho da url que geralmente é dinâmico
  * Por padrão as duas anotações são required default = true, ou seja, é obrigatorio, para resolver isso caso não queira que seja obrigatorio
  * coloque assim na passagem de parametro required=false
+ *
+ * Refatoração de StudentEndPoint para controller, se fosse mais de uma tela usariamos resource
  */
 
 @Log4j2
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("students")
-public class StudentEndPoint {
+public class StudentController {
     //localhost:8080/students
     @Autowired
     private DateUtil dateUtil;
@@ -44,6 +46,11 @@ public class StudentEndPoint {
         log.info(dateUtil.formatLocalDateTimeToDatabaseStyle(LocalDateTime.now()));
         log.info("here");
         return new ResponseEntity<>(studentService.findAll(), HttpStatus.OK);
+    }
+
+    @GetMapping("/filter")
+    public List<Student> filterName(@RequestParam String name) {
+        return studentService.findByNameFilter(name);
     }
 
     @GetMapping(path = "/{id}")
