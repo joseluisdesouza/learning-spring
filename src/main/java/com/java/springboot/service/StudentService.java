@@ -1,6 +1,7 @@
 package com.java.springboot.service;
 
 import com.java.springboot.domain.Student;
+import com.java.springboot.exceptions.BadRequestException;
 import com.java.springboot.mapper.StudentMapper;
 import com.java.springboot.repository.StudentRepository;
 import com.java.springboot.requests.StudentRequest;
@@ -42,7 +43,7 @@ public class StudentService {
 
     public Student findByIdOrThrowNotFoundException(Long id) {
         return studentRepository.findById(id).
-                orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
+                orElseThrow(() -> new BadRequestException("Student not found"));
     }
 
     public List<Student> findAll() {
