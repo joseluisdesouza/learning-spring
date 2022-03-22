@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,7 +36,16 @@ public class StudentService {
                 BeanUtils.copyProperties(studentRequest, student);
                 return studentRepository.save(student);
             }
+
+            SOBRE TRANSAÇÕES NO METODO SAVE: em caso de exceção eu preciso que de um rollback
+            ou seja, lanca a exceção mas não salva nenhum estudante e para isso usamos a
+            annotation @Transaction e é claro precisamos verificar se as tabelas são do tipo
+            InnoDB no engine (show table status)
+
+            O @Transaction não da rollback para exceções do tipo checked, para esse problema:
+            @Transaction(rollbackFor = Exception.class)
      */
+    @Transactional
     public Student save(StudentRequest studentRequest) {
         //usando o mapper de student
         return studentRepository.save(StudentMapper.INSTANCE.toStudent(studentRequest));
