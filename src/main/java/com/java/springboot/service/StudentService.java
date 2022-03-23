@@ -6,13 +6,8 @@ import com.java.springboot.mapper.StudentMapper;
 import com.java.springboot.repository.StudentRepository;
 import com.java.springboot.requests.StudentRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -65,7 +60,7 @@ public class StudentService {
     }
 
     public void delete(Long id) {
-        Student.studentList.remove(id);
+//        Student.studentList.remove(id);
         studentRepository.deleteById(id);
     }
 
