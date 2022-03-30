@@ -2,20 +2,25 @@ package com.java.springboot.handler;
 
 import com.java.springboot.exceptions.BadRequestException;
 import com.java.springboot.exceptions.BadRequestExceptionDetails;
+import com.java.springboot.exceptions.ExceptionDetails;
 import com.java.springboot.exceptions.ValidationExceptionDetails;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-public class RestExceptionHandler {
+public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<BadRequestExceptionDetails> handlerBadRequestException(
@@ -31,26 +36,45 @@ public class RestExceptionHandler {
 
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationExceptionDetails> handlerMethodArgumentNotValidException(
-            MethodArgumentNotValidException methodArgumentNotValidException) {
-        List<FieldError> fieldErrors = methodArgumentNotValidException.getBindingResult().getFieldErrors();
-        var fields = fieldErrors.stream().map(FieldError::getField).collect(Collectors.joining(", "));
-        var fieldsMessage = fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(", "));
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<ValidationExceptionDetails> handlerMethodArgumentNotValidException(
+//            MethodArgumentNotValidException methodArgumentNotValidException) {
+//        List<FieldError> fieldErrors = methodArgumentNotValidException.getBindingResult().getFieldErrors();
+//        var fields = fieldErrors.stream().map(FieldError::getField).collect(Collectors.joining(", "));
+//        var fieldsMessage = fieldErrors.stream().map(FieldError::getDefaultMessage).collect(Collectors.joining(", "));
+//
+//        return new ResponseEntity<>(
+//                ValidationExceptionDetails.builder()
+//                        .timeStamp(LocalDateTime.now())
+//                        .status(HttpStatus.BAD_REQUEST.value())
+//                        .title("Bad Request Exception, Invalid Fields")
+//                        .details(methodArgumentNotValidException.getMessage())
+//                        .developerMessage(methodArgumentNotValidException.getClass().getName())
+//                        .fields(fields)
+//                        .fieldsMessage(fieldsMessage)
+//                        .build(), HttpStatus.BAD_REQUEST);
+//
+//    }
 
-        return new ResponseEntity<>(
-                ValidationExceptionDetails.builder()
-                        .timeStamp(LocalDateTime.now())
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .title("Bad Request Exception, Invalid Fields")
-                        .details(methodArgumentNotValidException.getMessage())
-                        .developerMessage(methodArgumentNotValidException.getClass().getName())
-                        .fields(fields)
-                        .fieldsMessage(fieldsMessage)
-                        .build(), HttpStatus.BAD_REQUEST);
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
+        ExceptionDetails exceptionDetails = ExceptionDetails.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .title("Bad Request Exception, Invalid Fields")
+                .details(ex.getMessage())
+                .developerMessage(ex.getClass().getName())
+                .build();
+
+        return new ResponseEntity<>(exceptionDetails, headers, status);
     }
 }
+/*
+    Handler é uma forma de interceptar exceções e adicionar o que foi defido nesta classe
+ */
+
 /*
     BindingResult
         [ BindingResult] é o objeto do Spring que contém o resultado da validação e vinculação e contém erros que podem ter ocorrido.

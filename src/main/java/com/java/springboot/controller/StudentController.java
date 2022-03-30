@@ -7,6 +7,8 @@ import com.java.springboot.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,10 +45,10 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Student>> findAll() {
+    public ResponseEntity<Page<Student>> findAll(Pageable pageable) {
         log.info(dateUtil.formatLocalDateTimeToDatabaseStyle(LocalDateTime.now()));
         log.info("here");
-        return new ResponseEntity<>(studentService.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(studentService.findAll(pageable), HttpStatus.OK);
     }
 
     @GetMapping("/filter")

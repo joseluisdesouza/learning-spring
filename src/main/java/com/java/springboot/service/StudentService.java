@@ -6,6 +6,9 @@ import com.java.springboot.mapper.StudentMapper;
 import com.java.springboot.repository.StudentRepository;
 import com.java.springboot.requests.StudentRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +46,9 @@ public class StudentService {
     @Transactional
     public Student save(StudentRequest studentRequest) {
         //usando o mapper de student
-        return studentRepository.save(StudentMapper.INSTANCE.toStudent(studentRequest));
+        var mapperConvert =StudentMapper.INSTANCE.toStudent(studentRequest);
+        Student saveStudentConverted = studentRepository.save(mapperConvert);
+        return studentRepository.save(saveStudentConverted);
     }
 
     public Student findByIdOrThrowNotFoundException(Long id) {
@@ -51,8 +56,8 @@ public class StudentService {
                 orElseThrow(() -> new BadRequestException("Student not found"));
     }
 
-    public List<Student> findAll() {
-        return studentRepository.findAll();
+    public Page<Student> findAll(Pageable pageable) {
+        return studentRepository.findAll(pageable);
     }
 
     public List<Student> findByNameFilter(String name) {
