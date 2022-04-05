@@ -45,10 +45,17 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Student>> findAll(Pageable pageable) {
+    public ResponseEntity<Page<Student>> findAllPaginated(Pageable pageable) {
         log.info(dateUtil.formatLocalDateTimeToDatabaseStyle(LocalDateTime.now()));
         log.info("here");
-        return new ResponseEntity<>(studentService.findAll(pageable), HttpStatus.OK);
+        return new ResponseEntity<>(studentService.findAllPaginated(pageable), HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Student>> findAll() {
+        log.info(dateUtil.formatLocalDateTimeToDatabaseStyle(LocalDateTime.now()));
+        log.info("here");
+        return new ResponseEntity<>(studentService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/filter")

@@ -56,8 +56,12 @@ public class StudentService {
                 orElseThrow(() -> new BadRequestException("Student not found"));
     }
 
-    public Page<Student> findAll(Pageable pageable) {
+    public Page<Student> findAllPaginated(Pageable pageable) {
         return studentRepository.findAll(pageable);
+    }
+
+    public List<Student> findAll() {
+        return studentRepository.findAll();
     }
 
     public List<Student> findByNameFilter(String name) {
