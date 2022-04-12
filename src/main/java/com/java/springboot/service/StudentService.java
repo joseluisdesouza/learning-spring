@@ -6,7 +6,6 @@ import com.java.springboot.mapper.StudentMapper;
 import com.java.springboot.repository.StudentRepository;
 import com.java.springboot.requests.StudentRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,7 @@ public class StudentService {
     @Transactional
     public Student save(StudentRequest studentRequest) {
         //usando o mapper de student
-        var mapperConvert =StudentMapper.INSTANCE.toStudent(studentRequest);
+        var mapperConvert = StudentMapper.INSTANCE.toStudent(studentRequest);
         Student saveStudentConverted = studentRepository.save(mapperConvert);
         return studentRepository.save(saveStudentConverted);
     }

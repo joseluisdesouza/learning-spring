@@ -4,23 +4,26 @@ import com.java.springboot.domain.Student;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
+
+import static com.java.springboot.util.StudentCreator.createdStudentToBeSaved;
 
 @DataJpaTest
 @DisplayName("Tests for Student Repository")
 class StudentRepositoryTest {
 
-    @Mock
+    @Autowired
     private StudentRepository studentRepository;
 
     @Test
     @DisplayName("Save student when successful")
     void save_Student_WhenSuccessful() {
-        Student studentToBeSaved = createdStudent();
+        Student studentToBeSaved = createdStudentToBeSaved();
         Student studentSaved = this.studentRepository.save(studentToBeSaved);
 
         Assertions.assertThat(studentSaved).isNotNull();
@@ -31,7 +34,7 @@ class StudentRepositoryTest {
     @Test
     @DisplayName("Save update student when successful")
     void save_UpdateStudent_WhenSuccessful() {
-        Student studentToBeSaved = createdStudent();
+        Student studentToBeSaved = createdStudentToBeSaved();
         Student studentSaved = this.studentRepository.save(studentToBeSaved);
 
         studentSaved.setName("Venom");
@@ -45,7 +48,7 @@ class StudentRepositoryTest {
     @Test
     @DisplayName("Delete student when successful")
     void deleted_DeleteStudent_WhenSuccessful() {
-        Student studentToBeSaved = createdStudent();
+        Student studentToBeSaved = createdStudentToBeSaved();
         Student studentSaved = this.studentRepository.save(studentToBeSaved);
 
         this.studentRepository.delete(studentSaved);
@@ -57,21 +60,25 @@ class StudentRepositoryTest {
     @Test
     @DisplayName("Find by name return list student when successful")
     void findByName_Student_WhenSuccessful() {
-        Student studentToBeSaved = createdStudent();
+        Student studentToBeSaved = createdStudentToBeSaved();
         Student studentSaved = this.studentRepository.save(studentToBeSaved);
 
         String studentSavedName = studentSaved.getName();
 
         List<Student> studentList = this.studentRepository.findByName(studentSavedName);
 
-        Assertions.assertThat(studentList).isNotNull();
-        Assertions.assertThat(studentList).isEmpty();
-        Assertions.assertThat(studentList).contains(studentSaved);
+        Assertions.assertThat(studentList)
+                .contains(studentSaved)
+                .isNotNull();
+        //sonarLint sugeriu colocar todas a assertivas em apenas um assertThat
     }
 
-    private Student createdStudent() {
-        return Student.builder()
-                .name("Homem-aranha")
-                .build();
+    @Test
+    @DisplayName("Save throw ConstraintViolationException when name is empty")
+    void save_ThrowConstraintViolationException_WhenNameIsEmpty() {
+        Student studentToBeSaved = new Student();
+        Assertions.assertThatThrownBy(() -> this.studentRepository.save(studentToBeSaved))
+                .isInstanceOf(ConstraintViolationException.class);
     }
+
 }
